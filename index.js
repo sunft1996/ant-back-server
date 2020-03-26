@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2019-12-24 16:35:27
- * @LastEditTime: 2020-03-25 16:33:20
+ * @LastEditTime: 2020-03-26 15:39:51
  */
 
 const Koa = require('koa');
@@ -17,7 +17,7 @@ const { queryRole, saveOrUpdateRole } = require('./model/role');
 const app = new Koa();
 
 const connection = mysql.createConnection({
-    host: '127.0.0.1',
+    host: '139.199.152.16',
     user: 'root',
     password: '123456',
     database: 'common'
@@ -29,7 +29,7 @@ connection.connect();
 app.keys = ['sunft handsome!'];
 const CONFIG = {
     key: 'sessionId',
-    maxAge: 86400000,
+    maxAge: 8640000000,
     autoCommit: true,
     overwrite: true,
     httpOnly: true,
