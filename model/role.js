@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-02-24 15:18:51
- * @LastEditTime: 2020-03-26 17:32:14
+ * @LastEditTime: 2020-03-27 17:35:27
  */
 
 /**
@@ -16,19 +16,15 @@ function queryRole(connection) {
         connection.query(sql, function (err, result) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message)
-                return;
-            }
-            if (result.length > 0) {
+                reject(err);
+            } else if (result.length > 0) {
                 const string = formatResKey(JSON.stringify(result));
                 const data = JSON.parse(string);
-
                 resolve(data);
-            } else {
-                reject()
             }
 
         });
-    });
+    }).catch(err => { });
 
 }
 
@@ -39,10 +35,11 @@ function saveOrUpdateRole(req, connection) {
         connection.query(sql, params, function (err, result) {
             if (err) {
                 console.log('[INSERT ERROR] - ', err.message)
-                reject();
+                reject(err)
+            } else {
+                console.log(result);
+                resolve(result);
             }
-            console.log(result);
-            resolve(result);
 
         });
     }).then(res => {
@@ -54,7 +51,7 @@ function saveOrUpdateRole(req, connection) {
                     sql += `,(?,?)`;
                     params = params.concat([res.insertId, req.menuIds[i]]);
                 } else {
-                    sql = `INSERT INTO sys_role_menu (role_id, menu_id) VALUES (?,?)`;
+                    sql = `INSERT INTO sys_role_menu (role_id1, menu_id) VALUES (?,?)`;
                     params = [res.insertId, req.menuIds[i]];
                 }
             }
@@ -62,17 +59,20 @@ function saveOrUpdateRole(req, connection) {
                 connection.query(sql, params, function (err, result) {
                     if (err) {
                         console.log('[INSERT ERROR] - ', err.message)
-                        reject();
+                        reject(err);
+                    } else {
+                        console.log(result);
+                        resolve({
+                            code: 'SUCCESS',
+                            msg: '创建角色成功'
+                        });
                     }
-                    console.log(result);
-                    resolve({
-                        code:'SUCCESS',
-                        msg:'创建角色成功'
-                    });
-
+                  
                 });
             })
         }
+    }).catch(err => {
+        console.log('err')
     })
 
 }

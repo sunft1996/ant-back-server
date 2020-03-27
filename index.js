@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2019-12-24 16:35:27
- * @LastEditTime: 2020-03-26 15:39:51
+ * @LastEditTime: 2020-03-27 15:55:49
  */
 
 const Koa = require('koa');
@@ -23,8 +23,6 @@ const connection = mysql.createConnection({
     database: 'common'
 });
 connection.connect();
-
-
 
 app.keys = ['sunft handsome!'];
 const CONFIG = {
@@ -118,7 +116,6 @@ app.use(mount('/empty-item/role/roleList', async ctx => {
     const request = ctx.request.body;
     console.log(request);
     const data = await queryRole(connection);
-
     ctx.status = 200;
     if (data) {
         ctx.body = data;

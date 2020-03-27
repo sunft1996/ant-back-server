@@ -6,18 +6,15 @@ function setLogin(req, connection) {
         connection.query(sql, function (err, result) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message)
-                return;
-            }
-            if (result.length > 0) {
+                reject();
+            } else if (result.length > 0) {
                 const string = JSON.stringify(result)
                 const data = JSON.parse(string)
                 Object.assign(response, data[0]);
                 response.roleCode = data[0].user_type;
                 response.encryptionId = data[0].id;
                 resolve(data[0]);
-            } else {
-                reject()
-            }
+            } 
 
         });
     }).then((res) => {
@@ -26,13 +23,14 @@ function setLogin(req, connection) {
             connection.query(sql, function (err, result) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message)
-                    return;
+                    reject();
+                }else{
+                    const string = JSON.stringify(result)
+                    const data = JSON.parse(string)
+                    response.roleCode = res.user_type;
+                    Object.assign(response, data[0]);
+                    resolve(data[0]);
                 }
-                const string = JSON.stringify(result)
-                const data = JSON.parse(string)
-                response.roleCode = res.user_type;
-                Object.assign(response, data[0]);
-                resolve(data[0]);
             });
         });
     }).then((res) => {
@@ -41,11 +39,13 @@ function setLogin(req, connection) {
             connection.query(sql, function (err, result) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message)
-                    return;
+                    reject();
+                }else{
+                    const string = JSON.stringify(result)
+                    const data = JSON.parse(string)
+                    resolve(data.map(item => item.menu_id));
                 }
-                const string = JSON.stringify(result)
-                const data = JSON.parse(string)
-                resolve(data.map(item => item.menu_id));
+
             });
         });
     }).then((res) => {
@@ -55,18 +55,17 @@ function setLogin(req, connection) {
             connection.query(sql, function (err, result) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message)
-                    return;
+                    reject();
+                }else{
+                    const string = JSON.stringify(result)
+                    const data = JSON.parse(string)
+                    const menusData = formatMenus(data);
+                    response.menuItem = menusData;
+                    resolve(response);
                 }
-                const string = JSON.stringify(result)
-                const data = JSON.parse(string)
-                const menusData = formatMenus(data);
-                response.menuItem = menusData;
-                resolve(response);
             });
         });
-    }).catch(err => {
-        console.log(err);
-    })
+    }).catch(err => {})
 }
 
 function queryUser(req, connection) {
@@ -76,13 +75,14 @@ function queryUser(req, connection) {
         connection.query(sql, function (err, result) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message)
-                return;
+                reject(err);
+            }else{
+                const string = JSON.stringify(result)
+                const data = JSON.parse(string)
+                resolve(data[0]);
             }
-            const string = JSON.stringify(result)
-            const data = JSON.parse(string)
-            resolve(data[0]);
         });
-    });
+    }).catch(err=>{})
 }
 
 // 格式化菜单
