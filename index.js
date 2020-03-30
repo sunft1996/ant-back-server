@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2019-12-24 16:35:27
- * @LastEditTime: 2020-03-27 15:55:49
+ * @LastEditTime: 2020-03-30 13:19:29
  */
 
 const Koa = require('koa');
@@ -13,7 +13,7 @@ const session = require('koa-session');
 const sessionStore = require('./session');
 const { setLogin, queryUser } = require('./model/user');
 const { queryAllMenus } = require('./model/menu');
-const { queryRole, saveOrUpdateRole } = require('./model/role');
+const { queryRole, saveOrUpdateRole,deleteRole } = require('./model/role');
 const app = new Koa();
 
 const connection = mysql.createConnection({
@@ -137,7 +137,6 @@ app.use(mount('/empty-item/role/saveOrUpdateRole', async ctx => {
     const request = ctx.request.body;
     console.log(request);
     const data = await saveOrUpdateRole(request,connection);
-
     ctx.status = 200;
     if (data) {
         ctx.body = data;
@@ -145,6 +144,27 @@ app.use(mount('/empty-item/role/saveOrUpdateRole', async ctx => {
         ctx.body = {
             code: "FAILED",
             msg: "新增角色失败",
+        };
+    }
+}));
+
+/**
+ * @msg: 删除角色
+ * @page: 权限管理
+ */
+app.use(mount('/empty-item/role/deleteById', async ctx => {
+    ctx.assert(ctx.session.isLogin, 401, 'Please login!');
+
+    const request = ctx.request.body;
+    console.log(request);
+    const data = await deleteRole(request,connection);
+    ctx.status = 200;
+    if (data) {
+        ctx.body = data;
+    } else {
+        ctx.body = {
+            code: "FAILED",
+            msg: "删除角色失败",
         };
     }
 }));

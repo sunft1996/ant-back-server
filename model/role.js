@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-02-24 15:18:51
- * @LastEditTime: 2020-03-27 17:35:27
+ * @LastEditTime: 2020-03-30 11:52:21
  */
 
 /**
@@ -32,16 +32,27 @@ function saveOrUpdateRole(req, connection) {
     const sql = `INSERT INTO sys_role (id, description, role) VALUES ('0',?,?);`;
     const params = [req.description, req.role];
     return new Promise((resolve, reject) => {
-        connection.query(sql, params, function (err, result) {
-            if (err) {
-                console.log('[INSERT ERROR] - ', err.message)
-                reject(err)
-            } else {
-                console.log(result);
-                resolve(result);
+        connection.beginTransaction(err => {
+            if (err) { reject(err); }
+            else {
+                resolve();
             }
+        })
+    }).then(() => {
+        return new Promise((resolve, reject) => {
+            connection.query(sql, params, function (err, result) {
+                if (err) {
+                    connection.rollback(() => {
+                        console.log('[INSERT ERROR] - ', err.message)
+                        reject(err);
+                    });
+                } else {
+                    console.log(result);
+                    resolve(result);
+                }
 
-        });
+            });
+        })
     }).then(res => {
         if (res.insertId !== null) {
             let sql;
@@ -51,35 +62,93 @@ function saveOrUpdateRole(req, connection) {
                     sql += `,(?,?)`;
                     params = params.concat([res.insertId, req.menuIds[i]]);
                 } else {
-                    sql = `INSERT INTO sys_role_menu (role_id1, menu_id) VALUES (?,?)`;
+                    sql = `INSERT INTO sys_role_menu (role_id, menu_id) VALUES (?,?)`;
                     params = [res.insertId, req.menuIds[i]];
                 }
             }
             return new Promise((resolve, reject) => {
                 connection.query(sql, params, function (err, result) {
                     if (err) {
-                        console.log('[INSERT ERROR] - ', err.message)
-                        reject(err);
-                    } else {
-                        console.log(result);
-                        resolve({
-                            code: 'SUCCESS',
-                            msg: '创建角色成功'
+                        connection.rollback(() => {
+                            console.log('[INSERT ERROR] - ', err.message)
+                            reject(err);
                         });
+                    } else {
+                        connection.commit((err) => {
+                            if (err) {
+                                connection.rollback(() => {
+                                    console.log('[commit ERROR] - ', err.message)
+                                    reject(err);
+                                });
+                            } else {
+                                console.log(result);
+                                resolve({
+                                    code: 'SUCCESS',
+                                    msg: '创建角色成功'
+                                });
+                            }
+                        })
                     }
-                  
                 });
             })
         }
     }).catch(err => {
-        console.log('err')
     })
+}
 
+function deleteRole(req, connection) {
+    const params = req;
+    let ids = '?';
+    for (let i = 1; i < req.length; i++) {
+        ids += ',?';
+    }
+    const sql = `DELETE from sys_role WHERE id IN (${ids});`
+    return new Promise((resolve, reject) => {
+        connection.beginTransaction(err => {
+            if (err) {
+                console.log(err)
+                reject();
+            } else {
+                resolve()
+            }
+        })
+    }).then(() => {
+        return new Promise((resolve, reject) => {
+            connection.query(sql, params, function (err, result) {
+                if (err) {
+                    console.log('[DELETE ERROR] - ', err.message)
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+
+            });
+        })
+    }).then((result) => {
+        const sql = `DELETE from sys_role_menu WHERE role_id IN (${ids});`
+        return new Promise((resolve, reject) => {
+            connection.query(sql, params, function (err, result) {
+                if (err) {
+                    connection.rollback(() => {
+                        console.log('[DELETE ERROR] - ', err.message)
+                        reject(err);
+                    })
+                } else {
+                    resolve({
+                        code: 'SUCCESS',
+                        msg: '删除角色成功'
+                    });
+                }
+
+            });
+        })
+    }).catch(err => { });
 }
 
 
 
 module.exports = {
     queryRole,
-    saveOrUpdateRole
+    saveOrUpdateRole,
+    deleteRole
 }

@@ -2,10 +2,10 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-02-24 15:18:51
- * @LastEditTime: 2020-03-27 17:39:11
+ * @LastEditTime: 2020-03-30 10:06:00
  */
 function queryAllMenus(connection) {
-    const sql = `SELECT1 * FROM sys_menu;`
+    const sql = `SELECT * FROM sys_menu;`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (err, result) {
             if (err) {
