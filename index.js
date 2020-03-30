@@ -17,7 +17,7 @@ const { queryRole, saveOrUpdateRole,deleteRole,updateRole } = require('./model/r
 const app = new Koa();
 
 const connection = mysql.createConnection({
-    host: '139.199.152.16',
+    host: '127.0.0.1',
     user: 'root',
     password: '123456',
     database: 'common'
