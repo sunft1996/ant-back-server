@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2019-12-24 16:35:27
- * @LastEditTime: 2020-03-30 13:19:29
+ * @LastEditTime: 2020-03-30 17:11:05
  */
 
 const Koa = require('koa');
@@ -13,11 +13,11 @@ const session = require('koa-session');
 const sessionStore = require('./session');
 const { setLogin, queryUser } = require('./model/user');
 const { queryAllMenus } = require('./model/menu');
-const { queryRole, saveOrUpdateRole,deleteRole } = require('./model/role');
+const { queryRole, saveOrUpdateRole,deleteRole,updateRole } = require('./model/role');
 const app = new Koa();
 
 const connection = mysql.createConnection({
-    host: '127.0.0.1',
+    host: '139.199.152.16',
     user: 'root',
     password: '123456',
     database: 'common'
@@ -136,14 +136,14 @@ app.use(mount('/empty-item/role/saveOrUpdateRole', async ctx => {
 
     const request = ctx.request.body;
     console.log(request);
-    const data = await saveOrUpdateRole(request,connection);
+    const data = !request.id ? await saveOrUpdateRole(request,connection) : await updateRole(request,connection);
     ctx.status = 200;
     if (data) {
         ctx.body = data;
     } else {
         ctx.body = {
             code: "FAILED",
-            msg: "新增角色失败",
+            msg: !request.id ? "新增角色失败" :"修改角色失败",
         };
     }
 }));
