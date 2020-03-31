@@ -1,21 +1,39 @@
-// 获取单个用户信息
-function setLogin(req, connection) {
-    const sql = `SELECT * FROM sys_user WHERE login_name='${req.loginName}';`
+/*
+ * @Descripttion: 
+ * @Author: sunft
+ * @Date: 2020-03-31 16:57:53
+ * @LastEditTime: 2020-03-31 17:44:25
+ */
+const mysql = require('mysql');
+const model = require('../models/model');
+const connection = mysql.createConnection(model);
+connection.connect();
+
+// 登录
+exports.setLogin = request => {
+    
+    const sql = `SELECT * FROM sys_user WHERE login_name='${request.loginName}';`
     const response = {};
     return new Promise((resolve, reject) => {
         connection.query(sql, function (err, result) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message)
-                reject();
+                reject('用户不存在');
+                
             } else if (result.length > 0) {
                 const string = JSON.stringify(result)
                 const data = JSON.parse(string)
+                if (data[0].password !== request.password) {
+                    reject("账号或密码不正确！");
+                    return;
+                }
                 Object.assign(response, data[0]);
                 response.roleCode = data[0].user_type;
                 response.encryptionId = data[0].id;
-                resolve(data[0]);
-            } 
-
+                resolve(response);
+            } else{
+                reject('用户不存在');
+            }
         });
     }).then((res) => {
         const sql = `SELECT * FROM sys_role WHERE role='${res.user_type}';`
@@ -24,7 +42,7 @@ function setLogin(req, connection) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message)
                     reject();
-                }else{
+                } else {
                     const string = JSON.stringify(result)
                     const data = JSON.parse(string)
                     response.roleCode = res.user_type;
@@ -40,7 +58,7 @@ function setLogin(req, connection) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message)
                     reject();
-                }else{
+                } else {
                     const string = JSON.stringify(result)
                     const data = JSON.parse(string)
                     resolve(data.map(item => item.menu_id));
@@ -56,34 +74,54 @@ function setLogin(req, connection) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message)
                     reject();
-                }else{
+                } else {
                     const string = JSON.stringify(result)
                     const data = JSON.parse(string)
                     const menusData = formatMenus(data);
                     response.menuItem = menusData;
-                    resolve(response);
+                    resolve({
+                        code: "SUCCESS",
+                        msg: "登录成功！",
+                        data: response
+                    });
                 }
             });
         });
-    }).catch(err => {})
+    }).catch(err => {
+        return {
+            code: "FAILED",
+            msg: err,
+        };
+    })
 }
 
-function queryUser(req, connection) {
-    const sql = `SELECT * FROM sys_user WHERE id='${req.id}';`
-    const response = {};
+
+// 获取用户详情
+exports.queryUser = request => {
+    const sql = `SELECT * FROM sys_user WHERE id='${request.id}';`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (err, result) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message)
-                reject(err);
-            }else{
+                reject(err.message);
+            } else {
                 const string = JSON.stringify(result)
                 const data = JSON.parse(string)
-                resolve(data[0]);
+                resolve({
+                    code: "FAILED",
+                    msg: "获取用户信息成功",
+                    data: data[0]
+                });
             }
         });
-    }).catch(err=>{})
+    }).catch(err => {
+        return {
+            code: "FAILED",
+            msg: err,
+        };
+    })
 }
+
 
 // 格式化菜单
 function formatMenus(menus, id) {
@@ -117,9 +155,3 @@ function formatMenus(menus, id) {
     }
     return newMenus;
 }
-
-module.exports = {
-    setLogin: setLogin,
-    queryUser: queryUser
-};
-

@@ -2,21 +2,26 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-02-24 15:18:51
- * @LastEditTime: 2020-03-30 15:48:29
+ * @LastEditTime: 2020-03-31 18:04:30
  */
+
+const mysql = require('mysql');
+const model = require('../models/model');
+const connection = mysql.createConnection(model);
+connection.connect();
 
 /**
  * @msg: 查询角色列表
  */
 const { formatResKey } = require("../util/index");
 
-function queryRole(connection) {
+function queryRole() {
     const sql = `SELECT sr.id, sr.description, sr.role,GROUP_CONCAT(srm.menu_id) as menu_id FROM sys_role sr LEFT JOIN sys_role_menu srm ON sr.id = srm.role_id GROUP BY id;`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (err, result) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message)
-                reject(err);
+                reject(err.message);
             } else if (result.length > 0) {
                 const string = formatResKey(JSON.stringify(result));
                 const data = JSON.parse(string);
@@ -24,11 +29,16 @@ function queryRole(connection) {
             }
 
         });
-    }).catch(err => { });
+    }).catch(err => { 
+        return {
+            code: "FAILED",
+            msg: err,
+        };
+    });
 
 }
 
-function saveOrUpdateRole(req, connection) {
+function saveOrUpdateRole(req) {
     const sql = `INSERT INTO sys_role (id, description, role) VALUES ('0',?,?);`;
     const params = [req.description, req.role];
     return new Promise((resolve, reject) => {
@@ -44,7 +54,7 @@ function saveOrUpdateRole(req, connection) {
                 if (err) {
                     connection.rollback(() => {
                         console.log('[INSERT ERROR] - ', err.message)
-                        reject(err);
+                        reject(err.message);
                     });
                 } else {
                     console.log(result);
@@ -78,7 +88,7 @@ function saveOrUpdateRole(req, connection) {
                     if (err) {
                         connection.rollback(() => {
                             console.log('[INSERT ERROR] - ', err.message)
-                            reject(err);
+                            reject(err.message);
                         });
                     } else {
                         connection.commit((err) => {
@@ -88,7 +98,6 @@ function saveOrUpdateRole(req, connection) {
                                     reject(err);
                                 });
                             } else {
-                                console.log(result);
                                 resolve({
                                     code: 'SUCCESS',
                                     msg: '创建角色成功'
@@ -100,16 +109,20 @@ function saveOrUpdateRole(req, connection) {
             })
         }
     }).catch(err => {
+        return {
+            code: "FAILED",
+            msg: err,
+        };
     })
 }
 
 
-function updateRole(req, connection) {
+function updateRole(req) {
     const sql = `UPDATE sys_role set description=(?),role=(?) WHERE id=${req.id};`;
     const params = [req.description, req.role];
     return new Promise((resolve, reject) => {
         connection.beginTransaction(err => {
-            if (err) { reject(err); }
+            if (err) { reject(err.message); }
             else {
                 resolve();
             }
@@ -136,7 +149,7 @@ function updateRole(req, connection) {
                 if (err) {
                     connection.rollback(() => {
                         console.log('[DELETE ERROR] - ', err.message)
-                        reject(err);
+                        reject(err.message);
                     });
                 } else {
                     console.log(result);
@@ -168,14 +181,14 @@ function updateRole(req, connection) {
                 if (err) {
                     connection.rollback(() => {
                         console.log('[INSERT ERROR] - ', err.message)
-                        reject(err);
+                        reject(err.message);
                     });
                 } else {
                     connection.commit((err) => {
                         if (err) {
                             connection.rollback(() => {
                                 console.log('[commit ERROR] - ', err.message)
-                                reject(err);
+                                reject(err.message);
                             });
                         } else {
                             console.log(result);
@@ -189,10 +202,14 @@ function updateRole(req, connection) {
             });
         })
     }).catch(err => {
+        return {
+            code: "FAILED",
+            msg: err,
+        };
     })
 }
 
-function deleteRole(req, connection) {
+function deleteRole(req) {
     const params = req;
     let ids = '?';
     for (let i = 1; i < req.length; i++) {
@@ -203,7 +220,7 @@ function deleteRole(req, connection) {
         connection.beginTransaction(err => {
             if (err) {
                 console.log(err)
-                reject();
+                reject(err.message);
             } else {
                 resolve()
             }
@@ -238,7 +255,12 @@ function deleteRole(req, connection) {
 
             });
         })
-    }).catch(err => { });
+    }).catch(err => { 
+        return {
+            code: "FAILED",
+            msg: err,
+        };
+    });
 }
 
 
