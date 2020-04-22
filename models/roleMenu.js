@@ -1,31 +1,31 @@
 /*
  * @Descripttion: 
  * @Author: sunft
- * @Date: 2020-02-24 15:18:51
- * @LastEditTime: 2020-04-21 17:04:37
+ * @Date: 2020-04-17 11:00:37
+ * @LastEditTime: 2020-04-21 17:10:18
  */
 
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
 
-const roleModel = sequelize.define('sys_role', {
-    id: {
+const roleMenuModel = sequelize.define('sys_role_menu', {
+    roleId: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         allowNull: false,
-        autoIncrement: true
+        field: 'role_id'
     },
-    description: {
-        type: Sequelize.STRING(20),
+    menuId: {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        allowNull: false,
+        field: 'menu_id'
     },
-    role: {
-        type: Sequelize.STRING(20),
-    },
+
 }, {
     // 启用时间戳
     timestamps: false,
     freezeTableName: true,
 });
 
-module.exports = roleModel;
-
+module.exports = roleMenuModel;

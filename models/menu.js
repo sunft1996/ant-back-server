@@ -2,50 +2,71 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-31 16:57:53
- * @LastEditTime: 2020-03-31 18:21:34
+ * @LastEditTime: 2020-04-21 17:05:23
  */
-const mysql = require('mysql');
-const model = require('../models/model');
-const connection = mysql.createConnection(model);
-connection.connect();
+const Sequelize = require('sequelize');
+const sequelize = require('../config/sequelizeBase');
+
+const menuModel = sequelize.define('sys_menu', {
+    id: {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true
+    },
+    name: {
+        type: Sequelize.STRING(20),
+        allowNull: false,
+    },
+    code: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+    },
+    sort: {
+        type: Sequelize.BIGINT,
+    },
+    href: {
+        type: Sequelize.STRING(100),
+    },
+    target: {
+        type: Sequelize.STRING(20),
+    },
+    isShow: {
+        type: Sequelize.BIGINT,
+        field: 'is_show'
+    },
+    createdAt: {
+        type: Sequelize.DATE,
+        field: 'create_date'
+    },
+    updatedAt: {
+        type: Sequelize.DATE,
+        field: 'update_date'
+    },
+    remark: {
+        type: Sequelize.STRING(200),
+    },
+    resourceType: {
+        type: Sequelize.STRING(20),
+        field: 'resource_type'
+    },
+    parentId: {
+        type: Sequelize.BIGINT,
+        field: 'parent_id'
+    },
+    deletedAt: {
+        type: Sequelize.DATE,
+        field: 'deletedAt'
+    }
+
+}, {
+    // 启用时间戳
+    timestamps: true,
+    // 启用paranoid 删除
+    paranoid: true,
+    freezeTableName: true,
+});
 
 
-function queryAllMenus() {
-    const sql = `SELECT * FROM sys_menu;`
-    return new Promise((resolve, reject) => {
-        connection.query(sql, function (err, result) {
-            if (err) {
-                console.log('[SELECT ERROR] - ', err.message)
-                reject(err.message);
-            }else if (result.length > 0) {
-                const string = JSON.stringify(result)
-                const data = JSON.parse(string)
-                data.forEach((item, index) => {
-                    if (item && item.parent_id !== 0) {
-                        data.forEach(el => {
-                            if (!el.childData) {
-                                el.childData = [];
-                            }
-                            if (item && el.id === item.parent_id) {
-                                el.childData.push(item);
-                            }
-                        });
-                    }
-                });
-                const response = data.filter(item => item.parent_id === 0);
-                resolve(response);
-            } 
 
-        });
-    }).catch(err=>{
-        return {
-            code: "FAILED",
-            msg: err,
-        };
-    })
-
-}
-
-module.exports = {
-    queryAllMenus,
-}
+module.exports = menuModel;
