@@ -3,7 +3,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-25 16:59:23
- * @LastEditTime: 2020-04-22 17:05:08
+ * @LastEditTime: 2020-04-23 15:09:56
  */
 const { roleModel, userModel } = require('../models/index');
 const { decrypt } = require('../util')
@@ -50,6 +50,7 @@ exports.setLogin = async ctx => {
             msg: '登录成功'
         }
         ctx.session.isLogin = true;
+        ctx.session.userId = currentUser.id;
 
         // 记录本次登录的ip和时间
         await userModel.update({
@@ -66,8 +67,16 @@ exports.setLogin = async ctx => {
             msg: error.message
         };
     }
+}
 
-
+// 登出
+exports.setLogout = ctx => {
+    ctx.session.isLogin = false;
+    ctx.status = 200;
+    ctx.body = {
+        code: 'SUCCESS',
+        msg: '退出成功',
+    };
 }
 
 // 获取用户详情
@@ -243,6 +252,40 @@ exports.resetPassword = async ctx => {
         ctx.body = {
             code: 'FAILED',
             msg: '密码重置失败'
+        };
+    }
+}
+
+exports.editPassword = async ctx => {
+    const request = ctx.request.body;
+    console.log(request);
+
+    try {
+        const currentUser = await userModel.findOne({
+            where: {
+                id: ctx.session.userId
+            },
+        });
+        if (request.password !== currentUser.password) {
+            throw new Error('旧密码不正确')
+        }
+        await userModel.update({
+            password: request.newPassword
+        }, {
+            where: {
+                id: ctx.session.userId
+            },
+        });
+        ctx.status = 200;
+        ctx.body = {
+            code: 'SUCCESS',
+            msg: '密码修改成功'
+        };
+    } catch (error) {
+        ctx.status = 200;
+        ctx.body = {
+            code: 'FAILED',
+            msg: error.message
         };
     }
 }

@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-27 17:56:10
- * @LastEditTime: 2020-04-02 18:13:10
+ * @LastEditTime: 2020-04-22 17:46:03
  */
 
 const Koa = require('koa');
@@ -35,16 +35,14 @@ app.use(bodyParser());
 
 /*
  * 请求拦截器
- * app.use(async (ctx,next)=>{
  */
+app.use(async (ctx, next) => {
     
-/*
- *     if(ctx.originalUrl !== '/empty-item/login'){
- *         ctx.assert(ctx.state.user, 401, 'User not found. Please login!');
- *     }
- *     // await next();
- * });
- */
+    if (ctx.path !== '/empty-item/login' && !ctx.session.isLogin) {
+        ctx.assert(ctx.state.user, 401, 'User not found. Please login!');
+    }
+    await next();
+});
 
 // routes
 app.use(role.routes(), role.allowedMethods());
