@@ -2,11 +2,10 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-31 16:57:53
- * @LastEditTime: 2020-04-21 17:10:31
+ * @LastEditTime: 2020-04-23 17:11:57
  */
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
-const role = require('./role');
 const userModel = sequelize.define('sys_user', {
     id: {
         type: Sequelize.BIGINT,
@@ -43,7 +42,7 @@ const userModel = sequelize.define('sys_user', {
         field: 'login_ip'
     },
     loginDate: {
-        type: Sequelize.STRING(200),
+        type: Sequelize.DATE,
         field: 'login_date'
     },
     status: {

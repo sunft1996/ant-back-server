@@ -3,14 +3,35 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-25 16:59:23
- * @LastEditTime: 2020-04-23 15:09:56
+ * @LastEditTime: 2020-04-24 13:53:18
  */
 const { roleModel, userModel } = require('../models/index');
 const { decrypt } = require('../util')
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
-const moment = require('moment');
+const svgCaptcha = require('svg-captcha');
 const { Op } = Sequelize;
+
+// 图片验证码
+exports.getCaptcha = async ctx => {
+    const codeConfig = {
+        size: 4, // 验证码长度
+        ignoreChars: '0oO1ilI', // 验证码字符中排除 0oO1ilI
+        noise: 2, // 干扰线条的数量
+        width: 150,
+        height: 40,
+        fontSize: 50,
+        color: true, // 验证码的字符是否有颜色，默认没有，如果设定了背景，则默认有
+        background: '#eee',
+    };
+
+    const captcha = svgCaptcha.create(codeConfig);
+    ctx.session.captcha = captcha.text.toLowerCase(); // 存session用于验证接口获取文字码
+    ctx.body = {
+        code: 'SUCCESS',
+        data: captcha.data
+    };
+}
 
 // 登录
 exports.setLogin = async ctx => {
@@ -20,12 +41,16 @@ exports.setLogin = async ctx => {
             where: {
                 loginName: request.loginName
             },
+            raw: true,
             include: [
                 {
                     model: roleModel,
                 }
             ],
         });
+        if (ctx.session.captcha !== request.verifyCode) {
+            throw new Error('验证码不正确');
+        }
         if (!currentUser) {
             throw new Error('用户不存在');
         }
@@ -35,17 +60,20 @@ exports.setLogin = async ctx => {
         const menus = await sequelize.query(`SELECT * from sys_role_menu  a LEFT JOIN sys_menu b ON a.menu_id=b.id where a.role_id=${currentUser.roleId};`, {
             type: sequelize.QueryTypes.SELECT
         })
-        const menuItem1 = formatMenus(menus);
+        const menuItem = {
+            path: '/',
+            routes: formatMenus(menus),
+            authority: currentUser['sys_role.role']
+        };
         ctx.status = 200;
         ctx.body = {
             code: 'SUCCESS',
             data: {
                 id: currentUser.id,
-                role: currentUser.sys_role.role,
+                roleCode: currentUser['sys_role.role'],
                 loginName: currentUser.loginName,
-                loginDate: currentUser.loginDate,
                 realName: currentUser.realName,
-                menuItem: menuItem1
+                menuItem
             },
             msg: '登录成功'
         }
@@ -54,7 +82,7 @@ exports.setLogin = async ctx => {
 
         // 记录本次登录的ip和时间
         await userModel.update({
-            loginDate: moment(request.timestamp).format('YYYY-MM-DD HH:MM:SS'),
+            loginDate: new Date().getTime(),
             loginIp: ctx.request.ip
         }, {
             where: { id: currentUser.id }
@@ -81,12 +109,11 @@ exports.setLogout = ctx => {
 
 // 获取用户详情
 exports.queryUser = async ctx => {
-    const request = ctx.query;
-    console.log(request);
     try {
         const result = await userModel.findOne({
+            attributes: ['id', 'loginDate', 'realName'],
             where: {
-                id: request.id
+                id: ctx.session.userId
             },
         });
         ctx.status = 200;
@@ -118,12 +145,20 @@ exports.queryUserList = async ctx => {
     }
     try {
         const userList = await userModel.findAndCountAll({
+            attributes: ['id', 'roleId', 'loginName', 'loginDate', 'realName', 'phone', 'email', [Sequelize.col('description'), 'roleName']],
             where,
             offset: request.pageSize * (request.pageNo - 1),
             limit: request.pageSize,
             order: [['createdAt', 'DESC']],
+            raw: true,
+            include: [
+                {
+                    model: roleModel,
+                    attributes: [],
+                }
+            ]
         });
-        userList.total = userList.count;
+
         delete userList.count;
         ctx.status = 200;
         ctx.body = userList;
@@ -136,7 +171,6 @@ exports.queryUserList = async ctx => {
         };
     }
 }
-
 
 // 新增或修改用户
 exports.saveOrUpdateUser = async ctx => {
