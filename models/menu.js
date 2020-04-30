@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-31 16:57:53
- * @LastEditTime: 2020-04-21 17:05:23
+ * @LastEditTime: 2020-04-26 17:19:07
  */
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
@@ -57,6 +57,9 @@ const menuModel = sequelize.define('sys_menu', {
     deletedAt: {
         type: Sequelize.DATE,
         field: 'deletedAt'
+    },
+    apiUrl: {
+        type: Sequelize.STRING(255),
     }
 
 }, {

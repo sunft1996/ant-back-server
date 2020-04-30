@@ -2,36 +2,42 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-04-24 17:12:32
- * @LastEditTime: 2020-04-26 10:58:53
+ * @LastEditTime: 2020-04-30 15:14:56
  */
-const { articleModel } = require('../models/index');
+const { demoModel } = require('../models/index');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
 const { Op } = Sequelize;
 
 // 获取列表
 // eslint-disable-next-line max-statements
-exports.queryArticle = async ctx => {
+exports.query = async ctx => {
     const request = ctx.request.body;
     const where = {};
-    if (request.title) {
-        where.title = {
-            // 模糊查询标题
-            [Op.like]: `%${request.title}%`
+    if (request.remark) {
+        where.remark = {
+            // 模糊查询
+            [Op.like]: `%${request.remark}%`
+        };
+    }
+    if (request.createdAt) {
+        where.createdAt = {
+            // 模糊查询
+            [Op.between]: request.createdAt
         };
     }
     if (request.type) {
         where.type = request.type;
     }
     try {
-        const articleList = await articleModel.findAll({
+        const demoList = await demoModel.findAll({
             where
         });
         ctx.status = 200;
         ctx.body = {
             code: 'SUCCESS',
             msg: '查询成功',
-            data: articleList
+            data: demoList
         };
     } catch (error) {
         console.log(error)
@@ -45,9 +51,9 @@ exports.queryArticle = async ctx => {
 
 // 详情
 exports.queryDetail = async ctx => {
-    const request = ctx.request.body;
+    const request = ctx.query;
     try {
-        const articleList = await articleModel.findOne({
+        const demoList = await demoModel.findOne({
             where: {
                 id: request.id
             }
@@ -56,7 +62,7 @@ exports.queryDetail = async ctx => {
         ctx.body = {
             code: 'SUCCESS',
             msg: '查询成功',
-            data: articleList
+            data: demoList
         };
     } catch (error) {
         console.log(error)
@@ -71,13 +77,13 @@ exports.queryDetail = async ctx => {
 
 // 新增或修改
 // eslint-disable-next-line max-statements
-exports.saveOrUpdateArticle = async ctx => {
+exports.saveOrUpdate = async ctx => {
     const request = ctx.request.body;
     console.log(request);
     // 修改
     if (request.id) {
         try {
-            await articleModel.update({
+            await demoModel.update({
                 title: request.title,
                 content: request.content,
                 remark: request.remark,
@@ -104,7 +110,7 @@ exports.saveOrUpdateArticle = async ctx => {
     } else {
         // 新增
         try {
-            await articleModel.create({
+            await demoModel.create({
                 ...request
             });
 
@@ -125,12 +131,12 @@ exports.saveOrUpdateArticle = async ctx => {
 
 }
 
-exports.deleteArticle = async ctx => {
+exports.delete = async ctx => {
     const request = ctx.request.body;
     console.log(request);
 
     try {
-        await articleModel.destroy({
+        await demoModel.destroy({
             where: {
                 id: request.id
             },

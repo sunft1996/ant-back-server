@@ -2,14 +2,14 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-25 16:59:23
- * @LastEditTime: 2020-04-22 17:22:14
+ * @LastEditTime: 2020-04-27 15:53:36
  */
-const { roleMenuModel,roleModel } = require('../models/index');
+const { roleMenuModel, roleModel } = require('../models/index');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
 const { Op } = Sequelize;
 
-// 获取权限列表
+// 获取角色列表
 // eslint-disable-next-line max-statements
 exports.queryRole = async ctx => {
     try {
@@ -36,7 +36,7 @@ exports.queryRole = async ctx => {
 }
 
 
-// 新增或修改用户
+// 新增或修改角色
 // eslint-disable-next-line max-statements
 exports.saveOrUpdateRole = async ctx => {
     const request = ctx.request.body;
@@ -57,9 +57,6 @@ exports.saveOrUpdateRole = async ctx => {
                 await roleMenuModel.destroy({
                     where: {
                         roleId: request.id,
-                        menuId: {
-                            [Op.in]: request.menuIds
-                        }
                     },
                     force: true,
                     transaction: t
@@ -133,20 +130,32 @@ exports.saveOrUpdateRole = async ctx => {
 
 }
 
+// 删除角色
 exports.deleteRole = async ctx => {
     const request = ctx.request.body;
     console.log(request);
 
     try {
-        await roleModel.destroy({
-            where: {
-                id: {
-                    [Op.or]: request
-                }
-            },
-            force: true
+        await sequelize.transaction(async t => {
+            await roleModel.destroy({
+                where: {
+                    id: {
+                        [Op.or]: request
+                    }
+                },
+                force: true,
+                transaction: t
+            });
+            await roleMenuModel.destroy({
+                where: {
+                    roleId: {
+                        [Op.or]: request
+                    }
+                },
+                force: true,
+                transaction: t
+            });
         });
-
         ctx.status = 200;
         ctx.body = {
             code: 'SUCCESS',

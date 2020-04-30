@@ -12,6 +12,7 @@ const user = require('../controllers/user');
  * @param {type} 
  */
 router.get('/empty-item/sysUser/toUserDetails', user.queryUser);
+router.get('/empty-item/sysUser/userDetail', user.queryDetail);
 router.get('/empty-item/getCaptcha', user.getCaptcha);
 router.post('/empty-item/login', user.setLogin);
 router.get('/empty-item/loginOut', user.setLogout);

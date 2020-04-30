@@ -3,14 +3,15 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-25 16:59:23
- * @LastEditTime: 2020-04-24 13:53:18
+ * @LastEditTime: 2020-04-27 15:51:48
  */
-const { roleModel, userModel } = require('../models/index');
+const { roleModel, userModel,menuModel } = require('../models/index');
 const { decrypt } = require('../util')
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
 const svgCaptcha = require('svg-captcha');
 const { Op } = Sequelize;
+const moment = require('moment');
 
 // 图片验证码
 exports.getCaptcha = async ctx => {
@@ -79,15 +80,31 @@ exports.setLogin = async ctx => {
         }
         ctx.session.isLogin = true;
         ctx.session.userId = currentUser.id;
+        ctx.session.lastLoginDate = currentUser.loginDate;
+        // 所有需要校验权限的api
+        const allAuthApi = await menuModel.findAll({
+            attributes: ['apiUrl'],
+            raw: true,
+            where: {
+                resourceType: 'pageAuth'
+            },
+        }); 
+        ctx.session.allAuthApi = allAuthApi.map(item=>item.apiUrl);
+        ctx.session.allowApi = menus.map(item=>{
+            if(item.resource_type === 'pageAuth'){
+                return item.apiUrl;
+            }  
+        }).filter(item=>item);
+        
 
         // 记录本次登录的ip和时间
+        const time = new Date();
         await userModel.update({
-            loginDate: new Date().getTime(),
+            loginDate: time,
             loginIp: ctx.request.ip
         }, {
             where: { id: currentUser.id }
         });
-
     } catch (error) {
         ctx.status = 200;
         ctx.body = {
@@ -107,15 +124,51 @@ exports.setLogout = ctx => {
     };
 }
 
-// 获取用户详情
+// 获取当前用户信息
 exports.queryUser = async ctx => {
     try {
         const result = await userModel.findOne({
-            attributes: ['id', 'loginDate', 'realName'],
+            attributes: ['id', 'realName'],
             where: {
                 id: ctx.session.userId
             },
         });
+        result.dataValues.loginDate = ctx.session.lastLoginDate;
+        ctx.status = 200;
+        ctx.body = {
+            code: 'SUCCESS',
+            msg: '查询用户详情成功',
+            data: result.dataValues,
+        };
+    } catch (error) {
+        ctx.status = 200;
+        ctx.body = {
+            code: 'FAILED',
+            msg: '查询失败'
+        };
+    }
+}
+
+// 获取用户信息
+exports.queryDetail = async ctx => {
+    const request = ctx.query;
+    try {
+        const result = await userModel.findOne({
+            where: {
+                id: request.id
+            },
+            raw: true,
+            include: [
+                {
+                    model: roleModel,
+                    attributes: ['description'],
+                }
+            ]
+        });
+        if(!result) { throw new Error('用户不存在'); }
+        delete result.password;
+        result.roleName = result['sys_role.description'];
+        delete result['sys_role.description'];
         ctx.status = 200;
         ctx.body = {
             code: 'SUCCESS',
@@ -126,11 +179,11 @@ exports.queryUser = async ctx => {
         ctx.status = 200;
         ctx.body = {
             code: 'FAILED',
-            msg: '查询失败'
+            msg: error.message
         };
     }
-
 }
+
 
 // 获取用户列表
 exports.queryUserList = async ctx => {
@@ -138,7 +191,9 @@ exports.queryUserList = async ctx => {
     // console.log(request);
     const where = {};
     if (request.loginName) {
-        where.loginName = request.loginName;
+        where.loginName = {
+            [Op.like]: `%${request.loginName}%`
+        };
     }
     if (request.roleId) {
         where.roleId = request.roleId;
@@ -215,7 +270,6 @@ exports.saveOrUpdateUser = async ctx => {
                 };
                 return;
             }
-            request.password = decrypt(request.password)
             await userModel.create({
                 ...request
             });

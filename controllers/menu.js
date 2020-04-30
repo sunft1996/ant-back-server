@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-02-24 15:18:51
- * @LastEditTime: 2020-04-21 17:07:56
+ * @LastEditTime: 2020-04-26 17:21:11
  */
 const { menuModel } = require('../models/index');
 const Sequelize = require('sequelize');
@@ -146,6 +146,7 @@ function formatMenus(menus, id) {
                     id: item.id,
                     childData: formatMenus(menus, item.id),
                     // component: item.component,
+                    apiUrl: item.apiUrl,
                     name: item.name,
                 });
             }
@@ -165,6 +166,7 @@ function formatMenus(menus, id) {
                     id: item.id,
                     childData: formatMenus(menus, item.id),
                     // component: item.component,
+                    apiUrl: item.apiUrl,
                     name: item.name,
 
                 });
