@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-27 17:56:10
- * @LastEditTime: 2020-04-30 16:29:17
+ * @LastEditTime: 2020-05-07 13:13:41
  */
 
 const Koa = require('koa');
@@ -35,7 +35,7 @@ app.use(session(CONFIG, app));
 // POST
 app.use(bodyParser());
 
-const notLoginApi = ['/empty-item/login','/empty-item/getCaptcha']
+const notLoginApi = ['/empty-item/login', '/empty-item/getCaptcha']
 
 /*
  * 请求拦截器
@@ -44,18 +44,17 @@ const notLoginApi = ['/empty-item/login','/empty-item/getCaptcha']
 app.use(async (ctx, next) => {
     // 未登录
     if (notLoginApi.indexOf(ctx.path) === -1 && !ctx.session.isLogin && !(/\/uploadImg/).test(ctx.path)) {
-        ctx.assert(ctx.state.user, 401, '用户未登录');
+        ctx.throw(401, '用户未登录');
+        return;
     }
 
-    // 请求路径以 / 结尾，需要去除 / 
+    // 请求路径格式化
     let { path } = ctx;
-    if((/\/$/).test(path)){
-        path = path.substring(0,path.length -1);
-    }
+    path = path.replace(/(\w*)\/$/, '$1');
     // 当前接口需要校验权限
-    if(ctx.session.isLogin && ctx.session.allAuthApi.indexOf(path) !== -1){
+    if (ctx.session.isLogin && ctx.session.allAuthApi.indexOf(path) !== -1) {
         // 用户无权限
-        if(ctx.session.allowApi.indexOf(ctx.path) === -1){
+        if (ctx.session.allowApi.indexOf(ctx.path) === -1) {
             ctx.status = 200;
             ctx.body = {
                 code: 'FAILED',
@@ -63,6 +62,16 @@ app.use(async (ctx, next) => {
             }
             return;
         }
+    }
+    // referer格式化 
+    let { referer } = ctx.header;
+    referer = referer.replace(/^\w+\:\/\/(\w|\.)+(\:\d+)?/, '');
+    referer = referer.replace(/\?.*/, '')
+    referer = referer.replace(/(\w*)\/$/, '$1');
+    // 用户无页面访问权限
+    if (ctx.session.isLogin && ctx.session.allowPage.indexOf(referer) === -1 && path !== '/empty-item/sysUser/toUserDetails') {
+        ctx.throw(403, '无权限');
+        return;
     }
     await next();
 });

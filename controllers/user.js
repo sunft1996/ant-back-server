@@ -3,7 +3,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-25 16:59:23
- * @LastEditTime: 2020-04-27 15:51:48
+ * @LastEditTime: 2020-05-06 17:37:18
  */
 const { roleModel, userModel,menuModel } = require('../models/index');
 const { decrypt } = require('../util')
@@ -95,7 +95,11 @@ exports.setLogin = async ctx => {
                 return item.apiUrl;
             }  
         }).filter(item=>item);
-        
+        ctx.session.allowPage = menus.map(item=>{
+            if(item.resource_type === 'button'){
+                return item.href;
+            }  
+        }).filter(item=>item);
 
         // 记录本次登录的ip和时间
         const time = new Date();
