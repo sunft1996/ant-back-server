@@ -2,11 +2,10 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-04-24 17:12:32
- * @LastEditTime: 2020-04-26 10:58:53
+ * @LastEditTime: 2020-05-18 15:30:29
  */
 const { articleModel } = require('../models/index');
 const Sequelize = require('sequelize');
-const sequelize = require('../config/sequelizeBase');
 const { Op } = Sequelize;
 
 // 获取列表

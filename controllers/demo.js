@@ -2,11 +2,10 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-04-24 17:12:32
- * @LastEditTime: 2020-04-30 15:14:56
+ * @LastEditTime: 2020-05-19 13:24:17
  */
 const { demoModel } = require('../models/index');
 const Sequelize = require('sequelize');
-const sequelize = require('../config/sequelizeBase');
 const { Op } = Sequelize;
 
 // 获取列表
@@ -131,6 +130,7 @@ exports.saveOrUpdate = async ctx => {
 
 }
 
+// 删除
 exports.delete = async ctx => {
     const request = ctx.request.body;
     console.log(request);

@@ -2,12 +2,13 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-04-24 17:14:46
- * @LastEditTime: 2020-04-30 14:05:30
+ * @LastEditTime: 2020-05-19 13:23:40
  */
 
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
 
+// 对应数据库中demo表的字段
 const demoModel = sequelize.define('demo', {
     id: {
         type: Sequelize.BIGINT,

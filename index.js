@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-27 17:56:10
- * @LastEditTime: 2020-05-07 13:13:41
+ * @LastEditTime: 2020-05-19 16:51:31
  */
 
 const Koa = require('koa');
@@ -86,4 +86,6 @@ app.use(article.routes(), article.allowedMethods());
 app.use(api.routes(), api.allowedMethods());
 app.use(demo.routes(), demo.allowedMethods());
 
-app.listen(4000);
+app.listen(4000,()=>{
+    console.log('4000端口已启动');
+});

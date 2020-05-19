@@ -3,10 +3,10 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-25 16:59:23
- * @LastEditTime: 2020-05-06 17:37:18
+ * @LastEditTime: 2020-05-19 17:23:35
  */
-const { roleModel, userModel,menuModel } = require('../models/index');
-const { decrypt } = require('../util')
+const { roleModel, userModel, menuModel } = require('../models/index');
+const { decrypt,encrypt } = require('../util')
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
 const svgCaptcha = require('svg-captcha');
@@ -55,7 +55,7 @@ exports.setLogin = async ctx => {
         if (!currentUser) {
             throw new Error('用户不存在');
         }
-        if (currentUser.password !== request.password) {
+        if (decrypt(currentUser.password) !== request.password) {
             throw new Error('密码不正确');
         }
         const menus = await sequelize.query(`SELECT * from sys_role_menu  a LEFT JOIN sys_menu b ON a.menu_id=b.id where a.role_id=${currentUser.roleId};`, {
@@ -66,6 +66,8 @@ exports.setLogin = async ctx => {
             routes: formatMenus(menus),
             authority: currentUser['sys_role.role']
         };
+        // 一个页面下的所有子权限
+        const pageAuth = menus.filter(item=>item.resource_type === 'pageAuth').map(item=>item.code)
         ctx.status = 200;
         ctx.body = {
             code: 'SUCCESS',
@@ -74,7 +76,8 @@ exports.setLogin = async ctx => {
                 roleCode: currentUser['sys_role.role'],
                 loginName: currentUser.loginName,
                 realName: currentUser.realName,
-                menuItem
+                menuItem,
+                pageAuth
             },
             msg: '登录成功'
         }
@@ -88,18 +91,18 @@ exports.setLogin = async ctx => {
             where: {
                 resourceType: 'pageAuth'
             },
-        }); 
-        ctx.session.allAuthApi = allAuthApi.map(item=>item.apiUrl);
-        ctx.session.allowApi = menus.map(item=>{
-            if(item.resource_type === 'pageAuth'){
+        });
+        ctx.session.allAuthApi = allAuthApi.map(item => item.apiUrl);
+        ctx.session.allowApi = menus.map(item => {
+            if (item.resource_type === 'pageAuth') {
                 return item.apiUrl;
-            }  
-        }).filter(item=>item);
-        ctx.session.allowPage = menus.map(item=>{
-            if(item.resource_type === 'button'){
+            }
+        }).filter(item => item);
+        ctx.session.allowPage = menus.map(item => {
+            if (item.resource_type === 'button') {
                 return item.href;
-            }  
-        }).filter(item=>item);
+            }
+        }).filter(item => item);
 
         // 记录本次登录的ip和时间
         const time = new Date();
@@ -169,7 +172,7 @@ exports.queryDetail = async ctx => {
                 }
             ]
         });
-        if(!result) { throw new Error('用户不存在'); }
+        if (!result) { throw new Error('用户不存在'); }
         delete result.password;
         result.roleName = result['sys_role.description'];
         delete result['sys_role.description'];
@@ -274,6 +277,7 @@ exports.saveOrUpdateUser = async ctx => {
                 };
                 return;
             }
+            request.password = encrypt(request.password);
             await userModel.create({
                 ...request
             });
@@ -327,7 +331,7 @@ exports.resetPassword = async ctx => {
 
     try {
         await userModel.update({
-            password: 123456
+            password: encrypt('123456') 
         }, {
             where: {
                 id: request.id
