@@ -23,7 +23,7 @@ ant-back是一个网站后台项目，实现了多角色登录、角色管理、
 后端：node.js + koa + sequelize + mysql
 
 ## 安装和运行
-> 请确保已安装node
+> 请确保已安装node，nginx
 
 ```
 git clone git@github.com:sunfutao/ant-back-server.git
@@ -39,8 +39,45 @@ node index.js
 npm i -s pm2 
 // 启动程序，在4000端口启动
 pm2 start index.js --name 'ant-back-server'
+// 有安装防火墙的需要打开4000端口
+firewall-cmd --zone=public --add-port=4000/tcp
+// 重启防火墙
+firewall-cmd --reload
 
 ```
+修改nginx配置
+
+```
+server{
+        listen 80;
+        # 你的域名或ip
+        server_name www.baidu.com;
+        
+        location ~* \.(gif|jpg|png|webp)$ {
+                # 后端项目下的图片存放位置
+                root /mnt/ant-back-server/public;
+        }
+
+        location / {
+                 # 前端打包后的静态文件位置
+                 root /mnt/dist;
+                 try_files $uri $uri/ /index.html;
+        }
+
+        # 请求转发到后端
+        location /empty-item {
+                proxy_pass http://127.0.0.1:4000;
+        }
+
+}
+
+```
+重启nginx
+
+```
+nginx -s reload
+```
+
 
 
 ## License

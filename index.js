@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-27 17:56:10
- * @LastEditTime: 2020-05-20 12:43:36
+ * @LastEditTime: 2020-05-20 15:20:42
  */
 
 const Koa = require('koa');
@@ -22,7 +22,8 @@ app.keys = ['sunft handsome!'];
 // session配置
 const CONFIG = {
     key: 'sessionId',
-    maxAge: 86400,
+    // session有效期一天
+    maxAge: 86400000,
     autoCommit: true,
     overwrite: true,
     httpOnly: true,
