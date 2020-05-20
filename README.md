@@ -1,9 +1,3 @@
-<!--
- * @Descripttion: 
- * @Author: sunft
- * @Date: 2020-03-25 16:59:06
- * @LastEditTime: 2020-05-19 18:14:11
---> 
 <h1 align="center">ant-back-server</h1>
 
 ![node](https://img.shields.io/badge/node-v12.13.1-blue)
@@ -14,7 +8,7 @@ ant-back是一个网站后台项目，实现了多角色登录、角色管理、
 
 :rocket: [查看效果点这里](http://back.1cloud.xyz/)
 
-:gem: [前端项目地址点这里](https://github.com/sunfutao/ant-back/)
+:gem: [前端项目地址点这里](https://github.com/sunft1996/ant-back/)
 
 ## 说明
 > 项目跑起来后首页有使用说明，里面有接口文档，还有添加页面、添加接口的教程。
