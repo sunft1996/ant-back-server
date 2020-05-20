@@ -3,7 +3,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-25 16:59:23
- * @LastEditTime: 2020-05-19 17:23:35
+ * @LastEditTime: 2020-05-20 13:07:38
  */
 const { roleModel, userModel, menuModel } = require('../models/index');
 const { decrypt,encrypt } = require('../util')
@@ -352,6 +352,7 @@ exports.resetPassword = async ctx => {
     }
 }
 
+// 修改密码
 exports.editPassword = async ctx => {
     const request = ctx.request.body;
     console.log(request);
@@ -362,11 +363,11 @@ exports.editPassword = async ctx => {
                 id: ctx.session.userId
             },
         });
-        if (request.password !== currentUser.password) {
+        if (request.password !== decrypt(currentUser.password)) {
             throw new Error('旧密码不正确')
         }
         await userModel.update({
-            password: request.newPassword
+            password: encrypt(request.newPassword)
         }, {
             where: {
                 id: ctx.session.userId

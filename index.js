@@ -2,7 +2,7 @@
  * @Descripttion: 
  * @Author: sunft
  * @Date: 2020-03-27 17:56:10
- * @LastEditTime: 2020-05-19 16:51:31
+ * @LastEditTime: 2020-05-20 12:43:36
  */
 
 const Koa = require('koa');
@@ -19,15 +19,17 @@ const article = require('./routes/article');
 const api = require('./routes/api');
 const demo = require('./routes/demo');
 app.keys = ['sunft handsome!'];
+// session配置
 const CONFIG = {
     key: 'sessionId',
-    maxAge: 8640000000,
+    maxAge: 86400,
     autoCommit: true,
     overwrite: true,
     httpOnly: true,
     signed: false,
     rolling: false,
     renew: false,
+    // session存储位置
     store: sessionStore
 };
 app.use(session(CONFIG, app));
@@ -75,7 +77,7 @@ app.use(async (ctx, next) => {
     }
     await next();
 });
-// 统一放到public中管理
+// 静态资源统一放到public中管理
 const source = static(`${path.join(__dirname)}/public`);
 app.use(source);
 // routes
@@ -86,6 +88,6 @@ app.use(article.routes(), article.allowedMethods());
 app.use(api.routes(), api.allowedMethods());
 app.use(demo.routes(), demo.allowedMethods());
 
-app.listen(4000,()=>{
+app.listen(4000, () => {
     console.log('4000端口已启动');
 });
