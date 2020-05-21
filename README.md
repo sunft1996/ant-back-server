@@ -23,14 +23,34 @@ ant-back是一个网站后台项目，实现了多角色登录、角色管理、
 后端：node.js + koa + sequelize + mysql
 
 ## 安装和运行
-> 请确保已安装node，nginx
+> 请确保已安装node，nginx，mysql
+
+1. 克隆项目
 
 ```
 git clone git@github.com:sunfutao/ant-back-server.git
-cd ant-back-server
+```
+
+2. 创建数据库并导入sql文件
+2. 修改config/sequelizeBase.js文件
+
+```
+const Sequelize = require('sequelize');
+// 参数依次为：要导入的数据库名，账号，密码
+const sequelize = new Sequelize('common', 'root', '123456', {
+    // 数据库ip
+    host: '127.0.0.1',
+    dialect: 'mysql'
+});
+
+module.exports = sequelize;
+```
+4. 进入项目根目录执行：
+
+```
 npm install 
 // 安装依赖后项目运行
-node index.js
+node index.
 ```
 ## 项目部署
 
@@ -43,6 +63,14 @@ pm2 start index.js --name 'ant-back-server'
 firewall-cmd --zone=public --add-port=4000/tcp
 // 重启防火墙
 firewall-cmd --reload
+
+// 还可能会用到下面指令
+// 项目重启
+pm2 restart all
+// 查看启动的node项目
+pm2 list
+// 删除项目进程
+pm2 delete ant-back-server
 
 ```
 修改nginx配置
