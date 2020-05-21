@@ -7,7 +7,8 @@ File Encoding         : 65001
 
 Date: 2020-05-21 13:58:36
 */
-
+-- 修改你为要导入的数据库
+USE common;
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
