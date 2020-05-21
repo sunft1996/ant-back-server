@@ -1,5 +1,13 @@
--- 填写你要导入的数据库名称 
-USE common;
+/*
+Navicat MySQL Data Transfer
+
+Target Server Type    : MYSQL
+Target Server Version : 50557
+File Encoding         : 65001
+
+Date: 2020-05-21 13:58:36
+*/
+
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
@@ -38,14 +46,12 @@ CREATE TABLE `demo` (
   `create_date` datetime DEFAULT NULL,
   `update_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of demo
 -- ----------------------------
-INSERT INTO `demo` VALUES ('22', '/uploadImg/1589959795874_article.png', '写文章页面图片', '1', '2020-05-20 07:29:58', '2020-05-20 07:29:58');
-INSERT INTO `demo` VALUES ('23', '/uploadImg/1589959890213_role.png', '项目-角色管理页面图片', '1', '2020-05-20 07:31:36', '2020-05-20 07:31:36');
-INSERT INTO `demo` VALUES ('24', '/uploadImg/1589959969430_index.png', '项目-首页', '1', '2020-05-20 07:33:02', '2020-05-20 07:33:02');
+INSERT INTO `demo` VALUES ('25', '/uploadImg/1590039641819_favicon.png', 'icon', '1', '2020-05-21 05:40:56', '2020-05-21 05:40:56');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -164,9 +170,6 @@ INSERT INTO `sys_role_menu` VALUES ('22', '72');
 INSERT INTO `sys_role_menu` VALUES ('22', '73');
 INSERT INTO `sys_role_menu` VALUES ('22', '76');
 INSERT INTO `sys_role_menu` VALUES ('22', '77');
-INSERT INTO `sys_role_menu` VALUES ('22', '78');
-INSERT INTO `sys_role_menu` VALUES ('22', '79');
-INSERT INTO `sys_role_menu` VALUES ('22', '80');
 INSERT INTO `sys_role_menu` VALUES ('22', '81');
 INSERT INTO `sys_role_menu` VALUES ('22', '82');
 INSERT INTO `sys_role_menu` VALUES ('94', '25');
@@ -220,5 +223,5 @@ CREATE TABLE `sys_user` (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES ('53', 'user', 'WKbvIA0TSzA=', '游客2020', null, null, null, null, '::ffff:127.0.0.1', '2020-05-20 10:00:33', null, null, '2020-05-19 08:53:23', null, '2020-05-20 10:00:33', null, null, '0', '94', null);
-INSERT INTO `sys_user` VALUES ('54', 'root', 'WKbvIA0TSzA=', 'root', null, null, null, null, '::ffff:127.0.0.1', '2020-05-20 10:03:05', null, null, '2020-05-19 08:57:31', null, '2020-05-20 10:03:21', null, null, '0', '22', null);
+INSERT INTO `sys_user` VALUES ('53', 'user', 'WKbvIA0TSzA=', '游客2020', null, null, null, null, '::ffff:127.0.0.1', '2020-05-20 16:01:26', null, null, '2020-05-19 08:53:23', null, '2020-05-20 16:01:26', null, null, '0', '94', null);
+INSERT INTO `sys_user` VALUES ('54', 'root', 'WKbvIA0TSzA=', 'root', null, null, null, null, '::ffff:127.0.0.1', '2020-05-21 05:57:03', null, null, '2020-05-19 08:57:31', null, '2020-05-21 05:57:14', null, null, '0', '22', null);
