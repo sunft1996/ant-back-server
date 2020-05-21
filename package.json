@@ -1,14 +1,13 @@
 {
   "name": "ant-back-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "ant-back后端部分",
+  "author": "sunft1996",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "crypto-js": "^4.0.0",
     "fs": "0.0.1-security",

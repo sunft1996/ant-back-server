@@ -1,18 +1,5 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : 我的主机
-Source Server Version : 50557
-Source Host           : 139.199.152.16:3306
-Source Database       : common
-
-Target Server Type    : MYSQL
-Target Server Version : 50557
-File Encoding         : 65001
-
-Date: 2020-05-20 18:03:58
-*/
-
+-- 填写你要导入的数据库名称 
+USE common;
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
