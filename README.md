@@ -28,7 +28,7 @@ ant-back是一个网站后台项目，实现了多角色登录、角色管理、
 1. 克隆项目
 
 ```
-git clone git@github.com:sunfutao/ant-back-server.git
+git clone https://github.com/sunft1996/ant-back-server.git
 ```
 
 2. 创建数据库并导入sql文件
@@ -49,8 +49,8 @@ module.exports = sequelize;
 
 ```
 npm install 
-// 安装依赖后项目运行
-node index.
+<!--项目运行-->
+node index.js
 ```
 ## 项目部署
 
