@@ -4,7 +4,8 @@
   "description": "ant-back后端部分",
   "author": "sunft1996",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "keywords": [],
   "license": "MIT",

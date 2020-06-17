@@ -50,7 +50,7 @@ module.exports = sequelize;
 ```
 npm install 
 <!--项目运行-->
-node index.js
+npm start
 ```
 ## 项目部署
 
