@@ -13,6 +13,19 @@ const { Op } = Sequelize;
 exports.queryArticle = async ctx => {
     const request = ctx.request.body;
     const where = {};
+    const columnKey = request.columnKey || 'createdAt';
+    let order;
+    switch (request.order) {
+        case 'descend':
+            order = 'DESC';
+            break;
+        case 'ascend':
+            order = 'ASC';
+            break;
+        default:
+            order = 'DESC';
+            break;
+    }
     if (request.title) {
         where.title = {
             // 模糊查询标题
@@ -24,8 +37,10 @@ exports.queryArticle = async ctx => {
     }
     try {
         const articleList = await articleModel.findAll({
-            where
+            where,
+            order: [[columnKey, order]],
         });
+        
         ctx.status = 200;
         ctx.body = {
             code: 'SUCCESS',

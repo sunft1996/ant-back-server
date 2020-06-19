@@ -6,7 +6,7 @@
  * @LastEditTime: 2020-05-20 13:07:38
  */
 const { roleModel, userModel, menuModel } = require('../models/index');
-const { decrypt,encrypt } = require('../util')
+const { decrypt, encrypt } = require('../util')
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelizeBase');
 const svgCaptcha = require('svg-captcha');
@@ -67,7 +67,7 @@ exports.setLogin = async ctx => {
             authority: currentUser['sys_role.role']
         };
         // 一个页面下的所有子权限
-        const pageAuth = menus.filter(item=>item.resource_type === 'pageAuth').map(item=>item.code)
+        const pageAuth = menus.filter(item => item.resource_type === 'pageAuth').map(item => item.code)
         ctx.status = 200;
         ctx.body = {
             code: 'SUCCESS',
@@ -197,6 +197,19 @@ exports.queryUserList = async ctx => {
     const request = ctx.request.body;
     // console.log(request);
     const where = {};
+    const columnKey = request.columnKey || 'createdAt';
+    let order;
+    switch (request.order) {
+        case 'descend':
+            order = 'DESC';
+            break;
+        case 'ascend':
+            order = 'ASC';
+            break;
+        default:
+            order = 'DESC';
+            break;
+    }
     if (request.loginName) {
         where.loginName = {
             [Op.like]: `%${request.loginName}%`
@@ -211,7 +224,7 @@ exports.queryUserList = async ctx => {
             where,
             offset: request.pageSize * (request.pageNo - 1),
             limit: request.pageSize,
-            order: [['createdAt', 'DESC']],
+            order: [[columnKey, order]],
             raw: true,
             include: [
                 {
@@ -220,10 +233,14 @@ exports.queryUserList = async ctx => {
                 }
             ]
         });
-
+        userList.total = userList.count;
         delete userList.count;
         ctx.status = 200;
-        ctx.body = userList;
+        ctx.body = ctx.body = {
+            code: 'SUCCESS',
+            msg: '查询用户列表成功',
+            data: userList,
+        };;
     } catch (error) {
         console.log(error)
         ctx.status = 200;
@@ -331,7 +348,7 @@ exports.resetPassword = async ctx => {
 
     try {
         await userModel.update({
-            password: encrypt('123456') 
+            password: encrypt('123456')
         }, {
             where: {
                 id: request.id
