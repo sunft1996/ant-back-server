@@ -27,7 +27,7 @@ ant-back是一个网站后台项目，实现了多角色登录、角色管理、
 
 1. 克隆项目
 
-```
+```shell
 $ git clone https://github.com/sunft1996/ant-back-server.git
 ```
 
@@ -47,14 +47,14 @@ module.exports = sequelize;
 ```
 4. 进入项目根目录执行：
 
-```
+```shell
 $ npm install 
 # 项目运行
 $ npm start
 ```
 ## 项目部署
 
-```
+```shell
 # 服务器安装pm2，防止node服务挂掉
 $ npm i -s pm2 
 # 启动程序，在4000端口启动
@@ -75,7 +75,7 @@ $ pm2 delete ant-back-server
 ```
 修改nginx配置
 
-```
+```shell
 server{
         listen 80;
         # 你的域名或ip
@@ -102,7 +102,7 @@ server{
 ```
 重启nginx
 
-```
+```shell
 $ nginx -s reload
 ```
 
