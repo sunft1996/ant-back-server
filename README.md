@@ -28,13 +28,13 @@ ant-back是一个网站后台项目，实现了多角色登录、角色管理、
 1. 克隆项目
 
 ```
-git clone https://github.com/sunft1996/ant-back-server.git
+$ git clone https://github.com/sunft1996/ant-back-server.git
 ```
 
 2. 创建数据库并导入sql文件
 2. 修改config/sequelizeBase.js文件
 
-```
+```js
 const Sequelize = require('sequelize');
 // 参数依次为：要导入的数据库名，账号，密码
 const sequelize = new Sequelize('common', 'root', '123456', {
@@ -48,29 +48,29 @@ module.exports = sequelize;
 4. 进入项目根目录执行：
 
 ```
-npm install 
-<!--项目运行-->
-npm start
+$ npm install 
+# 项目运行
+$ npm start
 ```
 ## 项目部署
 
 ```
-// 服务器安装pm2，防止node服务挂掉
-npm i -s pm2 
-// 启动程序，在4000端口启动
-pm2 start index.js --name 'ant-back-server'
-// 有安装防火墙的需要打开4000端口
-firewall-cmd --zone=public --add-port=4000/tcp
-// 重启防火墙
-firewall-cmd --reload
+# 服务器安装pm2，防止node服务挂掉
+$ npm i -s pm2 
+# 启动程序，在4000端口启动
+$ pm2 start index.js --name 'ant-back-server'
+# 有安装防火墙的需要打开4000端口
+$ firewall-cmd --zone=public --add-port=4000/tcp
+# 重启防火墙
+$ firewall-cmd --reload
 
-// 还可能会用到下面指令
-// 项目重启
-pm2 restart all
-// 查看启动的node项目
-pm2 list
-// 删除项目进程
-pm2 delete ant-back-server
+# 还可能会用到下面指令
+# 项目重启
+$ pm2 restart all
+# 查看启动的node项目
+$ pm2 list
+# 删除项目进程
+$ pm2 delete ant-back-server
 
 ```
 修改nginx配置
@@ -103,7 +103,7 @@ server{
 重启nginx
 
 ```
-nginx -s reload
+$ nginx -s reload
 ```
 
 
